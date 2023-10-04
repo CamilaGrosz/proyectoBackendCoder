@@ -1,14 +1,14 @@
-import productManager from '/productManager'
+import ProductManager from './productManager.js'
 import express from 'express'
 
 const app = express()
 const port = 8080;
 
-const products = productManager.getProducts();
-
+const productManager = new ProductManager("./products.json")
 app.use(express.json());
 
-app.get('/products', (req, res) => {
+app.get('/api/products', (req, res) => {
+    const products = productManager.getProducts();
     try {
         res.json(products);
     } catch (error) {
@@ -17,6 +17,7 @@ app.get('/products', (req, res) => {
 });
 
 app.get('/', (req, res)=>{
+    const products = productManager.getProducts();
     let limit = req.query.limit
     if(!limit || limit < 0 ){
         return res.send({products})
@@ -28,7 +29,7 @@ app.get('/', (req, res)=>{
     });
 })
 
-app.get('/products/:id', (req, res)=>{
+app.get('/api/products/:id', (req, res)=>{
     let id = req.params.id
     let product = productManager.getProductById(id)
     if(!product){
@@ -36,6 +37,10 @@ app.get('/products/:id', (req, res)=>{
     }
     res.send({product})
 
+})
+
+app.post('/api/products',(req, res) => {
+    let product = productManager.addProduct(req.body)
 })
 
 app.listen(port, () => {
