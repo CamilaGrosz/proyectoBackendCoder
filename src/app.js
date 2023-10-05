@@ -7,27 +7,22 @@ const port = 8080;
 const productManager = new ProductManager("./products.json")
 app.use(express.json());
 
-app.get('/api/products', (req, res) => {
-    const products = productManager.getProducts();
+
+app.get('/api/products', async (req, res) => {
     try {
-        res.json(products);
+        let limit = req.query.limit
+        const products = await productManager.getProducts();
+        if (limit) {
+            
+            return res.send(products.slice(0, limit))            
+        } else {
+            return res.send(products);
+        }
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener los productos' });
+        res.status(500).json({ error: 'no se encontraron los productos' });
     }
 });
 
-app.get('/', (req, res)=>{
-    const products = productManager.getProducts();
-    let limit = req.query.limit
-    if(!limit || limit < 0 ){
-        return res.send({products})
-    }
-    products.forEach(e => {
-        if(e <= limit){
-            res.send(e)
-        }
-    });
-})
 
 app.get('/api/products/:id', (req, res)=>{
     let id = req.params.id
